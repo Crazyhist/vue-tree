@@ -6,15 +6,15 @@ export interface TreeItem {
 	label: string
 }
 
-export default class Tree {
+export class Tree {
 	private items: TreeItem[]
 
 	constructor(items: TreeItem[]) {
 		this.items = items
 	}
 
-	private get childrenMap(): Map<TreeItemId, TreeItem[]> {
-		const map = new Map<TreeItemId, TreeItem[]>()
+	private get childrenMap(): Map<TreeItemId | null, TreeItem[]> {
+		const map = new Map<TreeItemId | null, TreeItem[]>()
 
 		this.items.forEach((item) => {
 			if (item.parent !== null) {

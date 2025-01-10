@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import Tree, { type TreeItem } from '../service/Tree'
+import { Tree, type TreeItem } from '../service/Tree'
 interface HistoryAction {
 	type: 'add' | 'remove' | 'update'
 	item: TreeItem
