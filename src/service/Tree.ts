@@ -13,10 +13,6 @@ export default class Tree {
 		this.items = items
 	}
 
-	private findItemById(id: TreeItemId): TreeItem | undefined {
-		return this.items.find((item) => item.id === id)
-	}
-
 	private get childrenMap(): Map<TreeItemId, TreeItem[]> {
 		const map = new Map<TreeItemId, TreeItem[]>()
 

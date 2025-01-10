@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import TreeStore, { type TreeItem } from '../service/Tree'
+import Tree, { type TreeItem } from '../service/Tree'
 interface HistoryAction {
 	type: 'add' | 'remove' | 'update'
 	item: TreeItem
 }
 const defaultValue = () => ({
-	treeStore: new TreeStore([] as TreeItem[]),
+	treeStore: new Tree([]),
 	history: [] as HistoryAction[],
 	future: [] as HistoryAction[],
 })
@@ -14,12 +14,13 @@ export const useTreeStore = defineStore('treeStore', {
 	state: defaultValue,
 	actions: {
 		initialize(items: TreeItem[]) {
-			this.treeStore = new TreeStore(items)
+			this.treeStore = new Tree(items)
 		},
 
 		addItem(item: TreeItem) {
-			this.treeStore.addItem(item)
-			this.history.push({ type: 'add', item })
+			const newItem = { ...item }
+			this.treeStore.addItem(newItem)
+			this.history.push({ type: 'add', item: newItem })
 			this.future = []
 		},
 		removeItem(id: number | string) {
@@ -28,7 +29,7 @@ export const useTreeStore = defineStore('treeStore', {
 				const allChildren = this.treeStore.getAllChildren(id)
 				allChildren.push(item)
 				allChildren.forEach((child) =>
-					this.history.push({ type: 'remove', item: child })
+					this.history.push({ type: 'remove', item: { ...child } })
 				)
 				this.treeStore.removeItem(id)
 				this.future = []
@@ -37,7 +38,8 @@ export const useTreeStore = defineStore('treeStore', {
 		updateItem(updatedItem: TreeItem) {
 			const existingItem = this.treeStore.getItem(updatedItem.id)
 			if (existingItem) {
-				this.history.push({ type: 'update', item: { ...existingItem } })
+				const itemCopy = { ...existingItem }
+				this.history.push({ type: 'update', item: itemCopy })
 				this.treeStore.updateItem(updatedItem)
 				this.future = []
 			}
