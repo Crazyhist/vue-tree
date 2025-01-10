@@ -22,6 +22,63 @@ export const useTreeStore = defineStore('treeStore', {
 			this.history.push({ type: 'add', item })
 			this.future = []
 		},
+		removeItem(id: number | string) {
+			const item = this.treeStore.getItem(id)
+			if (item) {
+				const allChildren = this.treeStore.getAllChildren(id)
+				allChildren.push(item)
+				allChildren.forEach((child) =>
+					this.history.push({ type: 'remove', item: child })
+				)
+				this.treeStore.removeItem(id)
+				this.future = []
+			}
+		},
+		updateItem(updatedItem: TreeItem) {
+			const existingItem = this.treeStore.getItem(updatedItem.id)
+			if (existingItem) {
+				this.history.push({ type: 'update', item: { ...existingItem } })
+				this.treeStore.updateItem(updatedItem)
+				this.future = []
+			}
+		},
+		undo() {
+			const action = this.history.pop()
+			if (!action) return
+
+			switch (action.type) {
+				case 'add':
+					this.treeStore.removeItem(action.item.id)
+					break
+				case 'remove':
+					this.treeStore.addItem(action.item)
+					break
+				case 'update':
+					this.treeStore.updateItem(action.item)
+					break
+			}
+
+			this.future.push(action)
+		},
+
+		redo() {
+			const action = this.future.pop()
+			if (!action) return
+
+			switch (action.type) {
+				case 'add':
+					this.treeStore.addItem(action.item)
+					break
+				case 'remove':
+					this.treeStore.removeItem(action.item.id)
+					break
+				case 'update':
+					this.treeStore.updateItem(action.item)
+					break
+			}
+
+			this.history.push(action)
+		},
 	},
 	getters: {
 		getAll: (state) => state.treeStore.getAll(),
