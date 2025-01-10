@@ -79,15 +79,24 @@ export const useTreeStore = defineStore('treeStore', {
 
 			this.history.push(action)
 		},
-	},
-	getters: {
-		getAll: (state) => state.treeStore.getAll(),
-		getItem: (state) => (id: number | string) => state.treeStore.getItem(id),
-		getChildren: (state) => (id: number | string) =>
-			state.treeStore.getChildren(id),
-		getAllChildren: (state) => (id: number | string) =>
-			state.treeStore.getAllChildren(id),
-		getAllParents: (state) => (id: number | string) =>
-			state.treeStore.getAllParents(id),
+		getAll(): TreeItem[] {
+			return this.treeStore.getAll()
+		},
+
+		getItem(id: number | string): TreeItem | undefined {
+			return this.treeStore.getItem(id)
+		},
+
+		getChildren(id: number | string): TreeItem[] {
+			return this.treeStore.getChildren(id)
+		},
+
+		getAllChildren(id: number | string): TreeItem[] {
+			return this.treeStore.getAllChildren(id)
+		},
+
+		getAllParents(id: number | string): TreeItem[] {
+			return this.treeStore.getAllParents(id)
+		},
 	},
 })
