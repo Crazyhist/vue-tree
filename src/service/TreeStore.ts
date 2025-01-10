@@ -1,10 +1,10 @@
-interface TreeItem {
+export interface TreeItem {
 	id: number | string
 	parent: number | string | null
 	label: string
 }
 
-class TreeStore {
+export default class TreeStore {
 	private items: TreeItem[]
 	private itemsMap: Map<number | string, TreeItem>
 	private childrenMap: Map<number | string, TreeItem[]>
