@@ -1,14 +1,19 @@
 import { defineStore } from 'pinia'
+import { mockTreeData } from '../mocks/mockTreeData'
 import { Tree, type TreeItem } from '../service/Tree'
+
 interface HistoryAction {
 	type: 'add' | 'remove' | 'update'
 	item: TreeItem
 }
-const defaultValue = () => ({
-	treeStore: new Tree([]),
-	history: [] as HistoryAction[],
-	future: [] as HistoryAction[],
-})
+const defaultValue = () => {
+	const treeStore = new Tree(mockTreeData)
+	return {
+		treeStore,
+		history: [] as HistoryAction[],
+		future: [] as HistoryAction[],
+	}
+}
 
 export const useTreeStore = defineStore('treeStore', {
 	state: defaultValue,
@@ -29,7 +34,7 @@ export const useTreeStore = defineStore('treeStore', {
 				const allChildren = this.treeStore.getAllChildren(id)
 				allChildren.push(item)
 				allChildren.forEach((child) =>
-					this.history.push({ type: 'remove', item: { ...child } })
+					this.history.push({ type: 'remove', item: structuredClone(child) })
 				)
 				this.treeStore.removeItem(id)
 				this.future = []

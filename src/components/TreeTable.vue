@@ -1,38 +1,88 @@
 <template>
-	<ag-grid-vue
-		class="ag-theme-alpine"
-		:rowData="rows"
-		:columnDefs="columns"
-		:treeData="true"
-		:getDataPath="getDataPath"
-		:autoGroupColumnDef="autoGroupColumn"
-		:defaultColDef="defaultColDef"
-		style="width: 100%; height: 100%"
-	/>
+	<div class="tree-table">
+		<ag-grid-vue
+			:rowData="rowData"
+			:columnDefs="columnDefs"
+			:defaultColDef="defaultColDef"
+			:treeData="true"
+			:getDataPath="getDataPath"
+			:groupUseEntireRow="true"
+			:autoGroupColumnDef="gridOptions.autoGroupColumnDef"
+			rowSelection="single"
+			style="width: 100%; height: 500px"
+		></ag-grid-vue>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { AgGridVue } from 'ag-grid-vue3'
+import { computed } from 'vue'
+import type { TreeItem } from '../service/Tree'
 import { useTreeStore } from '../store/useTreeStore'
 
 const treeStore = useTreeStore()
 
-const rows = computed(() => treeStore.getAll())
-const columns = ref([
-	{ field: 'label', headerName: 'Label' },
-	{ field: 'category', headerName: 'Category' },
-])
+const gridOptions = {
+	autoGroupColumnDef: {
+		headerName: 'Group',
+		cellRendererParams: { suppressCount: true },
+	},
+}
+const columnDefs = [
+	{ field: 'id', headerName: 'ID', width: 100 },
+	{
+		field: 'label',
+		headerName: 'Категория',
+		flex: 1,
+		cellRenderer: (params: any) => {
+			const depth = params.node.level
+			let categoryName = ''
 
-const defaultColDef = { sortable: true, filter: true }
-const autoGroupColumn = {
-	headerName: 'Tree',
-	cellRenderer: 'agGroupCellRenderer',
+			if (depth === 0) {
+				categoryName = 'Группа'
+			} else if (depth === 1) {
+				categoryName = 'Элемент'
+			} else {
+				categoryName = 'Подэлемент'
+			}
+
+			return `${categoryName}: ${params.value}`
+		},
+	},
+	{ field: 'label', headerName: 'Наименование', flex: 1 },
+]
+
+const defaultColDef = {
+	resizable: true,
+	sortable: true,
 }
 
-const getDataPath = (data: { path: any }) => data.path
+const getDataPath = (data: TreeItem): string[] => {
+	if (!data || !data.id || !data.label) {
+		console.warn('Invalid data item:', data)
+		return []
+	}
+
+	const path = treeStore
+		.getAllParents(data.id)
+		.map((item) => item.label)
+		.concat(data.label)
+
+	console.log(`Path for ID ${data.id}:`, path)
+	return path
+}
+
+const rowData = computed(() => {
+	const allData = treeStore.getAll()
+	console.log('Row Data before rendering:', allData)
+	return allData
+})
 </script>
 
-<style>
-@import 'ag-grid-community/styles/ag-grid.css';
-@import 'ag-grid-community/styles/ag-theme-alpine.css';
+<style scoped>
+.tree-table {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
 </style>
