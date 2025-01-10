@@ -29,7 +29,7 @@ const autoGroupColumn = {
 	cellRenderer: 'agGroupCellRenderer',
 }
 
-const getDataPath = (data) => data.path
+const getDataPath = (data: { path: any }) => data.path
 </script>
 
 <style>
